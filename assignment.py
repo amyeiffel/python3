@@ -5,30 +5,33 @@ import sys
 
 class Node:
 
-        def __init__(self, value, number, connections=None):
+	def __init__(self, value, number, connections=None):
 
-                self.index = number
-                self.connections = connections
-                self.value = value
+		self.index = number
+		self.connections = connections
+		self.value = value
 
 class Network: 
 
 	def __init__(self, nodes=None):
 
-                if nodes is None:
-                    self.nodes = []
-                else:
-                    self.nodes = nodes 
+		if nodes is None:
+		    self.nodes = []
+		else:
+		    self.nodes = nodes 
 
 	def get_mean_degree(self):
 		#Your code  for task 3 goes here
+		pass
 
 	def get_mean_clustering(self):
 		#Your code for task 3 goes here
-
+		pass
+	
 	def get_mean_path_length(self):
 		#Your code for task 3 goes here
-
+		pass
+	
 	def make_random_network(self, N, connection_probability=0.5):
 		'''
 		This function makes a *random* network of size N.
@@ -49,10 +52,12 @@ class Network:
 
 	def make_ring_network(self, N, neighbour_range=1):
 		#Your code  for task 4 goes here
-
+		pass
+	
 	def make_small_world_network(self, N, re_wire_prob=0.2):
 		#Your code for task 4 goes here
-
+		pass
+	
 	def plot(self):
 
 		fig = plt.figure()
@@ -171,59 +176,58 @@ def plot_ising(im, population):
 	'''
 	This function will display a plot of the Ising model
 	'''
-
-        new_im = np.array([[255 if val == -1 else 1 for val in rows] for rows in population], dtype=np.int8)
-        im.set_data(new_im)
-        plt.pause(0.1)
+	new_im = np.array([[255 if val == -1 else 1 for val in rows] for rows in population], dtype=np.int8)
+	im.set_data(new_im)
+	plt.pause(0.1)
 
 def test_ising():
 	'''
 	This function will test the calculate_agreement function in the Ising model
 	'''
 
-        print("Testing ising model calculations")
-        population = -np.ones((3, 3))
-        assert(calculate_agreement(population,1,1)==4), "Test 1"
+	print("Testing ising model calculations")
+	population = -np.ones((3, 3))
+	assert(calculate_agreement(population,1,1)==4), "Test 1"
 
-        population[1, 1] = 1.
-        assert(calculate_agreement(population,1,1)==-4), "Test 2"
+	population[1, 1] = 1.
+	assert(calculate_agreement(population,1,1)==-4), "Test 2"
 
-        population[0, 1] = 1.
-        assert(calculate_agreement(population,1,1)==-2), "Test 3"
+	population[0, 1] = 1.
+	assert(calculate_agreement(population,1,1)==-2), "Test 3"
 
-        population[1, 0] = 1.
-        assert(calculate_agreement(population,1,1)==0), "Test 4"
+	population[1, 0] = 1.
+	assert(calculate_agreement(population,1,1)==0), "Test 4"
 
-        population[2, 1] = 1.
-        assert(calculate_agreement(population,1,1)==2), "Test 5"
+	population[2, 1] = 1.
+	assert(calculate_agreement(population,1,1)==2), "Test 5"
 
-        population[1, 2] = 1.
-        assert(calculate_agreement(population,1,1)==4), "Test 6"
+	population[1, 2] = 1.
+	assert(calculate_agreement(population,1,1)==4), "Test 6"
 
-        "Testing external pull"
-        population = -np.ones((3, 3))
-        assert(calculate_agreement(population,1,1,1)==3), "Test 7"
-        assert(calculate_agreement(population,1,1,-1)==5), "Test 8"
-        assert(calculate_agreement(population,1,1,10)==14), "Test 9"
-        assert(calculate_agreement(population,1,1, -10)==-6), "Test 10"
+	"Testing external pull"
+	population = -np.ones((3, 3))
+	assert(calculate_agreement(population,1,1,1)==3), "Test 7"
+	assert(calculate_agreement(population,1,1,-1)==5), "Test 8"
+	assert(calculate_agreement(population,1,1,10)==14), "Test 9"
+	assert(calculate_agreement(population,1,1, -10)==-6), "Test 10"
 
-        print("Tests passed")
+	print("Tests passed")
 
 
 def ising_main(population, alpha=None, external=0.0):
     
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        ax.set_axis_off()
-        im = ax.imshow(population, interpolation='none', cmap='RdPu_r')
+	fig = plt.figure()
+	ax = fig.add_subplot(111)
+	ax.set_axis_off()
+	im = ax.imshow(population, interpolation='none', cmap='RdPu_r')
 
-        # Iterating an update 100 times
-        for frame in range(100):
-                # Iterating single steps 1000 times to form an update
-                for step in range(1000):
-                        ising_step(population, external)
-                print('Step:', frame, end='\r')
-                plot_ising(im, population)
+	# Iterating an update 100 times
+	for frame in range(100):
+		# Iterating single steps 1000 times to form an update
+		for step in range(1000):
+			ising_step(population, external)
+		print('Step:', frame, end='\r')
+		plot_ising(im, population)
 
 
 '''
@@ -233,97 +237,97 @@ This section contains code for the Defuant Model - task 2 in the assignment
 '''
 
 def plot_hist(op = [], ttl = None):
-        plt.figure(figsize=(8, 4))
-        plt.hist(op, edgecolor='black')
-        plt.title(ttl)
-        plt.xlabel('Opinion')
+	plt.figure(figsize=(8, 4))
+	plt.hist(op, edgecolor='black')
+	plt.title(ttl)
+	plt.xlabel('Opinion')
 
 def defuant_main(num_people = 50, threshold = 0.2, beta = 0.2):
 	#Your code for task 2 goes here
     
-        # 初始化意见
-        opinions = np.random.rand(num_people)
+	# 初始化意见
+	opinions = np.random.rand(num_people)
 
-        plot_hist(opinions,'Initial Opinions')
-        plt.show()
+	plot_hist(opinions,'Initial Opinions')
+	plt.show()
 
-        # 存储每次迭代后的意见数据
-        opinions_history = [opinions.copy()]
+	# 存储每次迭代后的意见数据
+	opinions_history = [opinions.copy()]
 
-        # 模拟意见更新
-        for each in range(num_people*100):
-                # 随机选择一个人
-                person_idx = np.random.randint(0, num_people)
-        
-                # 随机选择左或右邻居
-                direction = np.random.choice([-1, 1])
-                neighbor_idx = (person_idx + direction) % num_people
-        
-                # 检查意见差异
-                diff = abs(opinions[person_idx] - opinions[neighbor_idx])
-                
-                if diff < threshold:
-                        # 更新意见
-                        opinions[person_idx] += beta * (opinions[neighbor_idx] - opinions[person_idx])
-                        opinions[neighbor_idx] += beta * (opinions[person_idx] - opinions[neighbor_idx])
-                # 存储当前意见数据
-                opinions_history.append(opinions.copy())
+	# 模拟意见更新
+	for each in range(num_people*100):
+		# 随机选择一个人
+		person_idx = np.random.randint(0, num_people)
+	
+		# 随机选择左或右邻居
+		direction = np.random.choice([-1, 1])
+		neighbor_idx = (person_idx + direction) % num_people
+	
+		# 检查意见差异
+		diff = abs(opinions[person_idx] - opinions[neighbor_idx])
+		
+		if diff < threshold:
+			# 更新意见
+			opinions[person_idx] += beta * (opinions[neighbor_idx] - opinions[person_idx])
+			opinions[neighbor_idx] += beta * (opinions[person_idx] - opinions[neighbor_idx])
+		# 存储当前意见数据
+		opinions_history.append(opinions.copy())
 
-                # 可视化迭代过程中的意见变化
-        plt.figure(figsize=(10, 6))
-        for i, opinion in enumerate(opinions_history):
-                plt.plot([i]*num_people, opinion, 'o', markersize=2, color='blue', alpha=0.5)
+		# 可视化迭代过程中的意见变化
+	plt.figure(figsize=(10, 6))
+	for i, opinion in enumerate(opinions_history):
+		plt.plot([i]*num_people, opinion, 'o', markersize=2, color='blue', alpha=0.5)
 
-        plt.title('Opinions Evolution During Iterations')
-        plt.xlabel('Iteration')
-        plt.ylabel('Opinion')
-        plt.show()
+	plt.title('Opinions Evolution During Iterations')
+	plt.xlabel('Iteration')
+	plt.ylabel('Opinion')
+	plt.show()
 
-        # 可视化更新后的意见
-        plot_hist(opinions,'Final Opinions')
-        plt.show()
+	# 可视化更新后的意见
+	plot_hist(opinions,'Final Opinions')
+	plt.show()
     
 def test_defuant(num_people = 50, threshold = 0.2, beta = 0.2):
 	#Your code for task 2 goes here
-        print(f'total number of people in this test function is {num_people}')
-        print(f'threshold set at {threshold}')
-        print(f'beta set at {beta}')
+	print(f'total number of people in this test function is {num_people}')
+	print(f'threshold set at {threshold}')
+	print(f'beta set at {beta}')
 
-        # 初始化意见
-        opinions = np.random.rand(num_people)
+	# 初始化意见
+	opinions = np.random.rand(num_people)
 
-        plot_hist(opinions,'Initial Opinions')
-        plt.show()
+	plot_hist(opinions,'Initial Opinions')
+	plt.show()
 
-        # 模拟意见更新
-        for each in range(3):
-                # 随机选择一个人
-                person_idx = np.random.randint(0, num_people)
-                print(f'------iteration {each}------')
-                print(f'people No. {person_idx} chosen as Xi')
-                
-                # 随机选择左或右邻居
-                direction = np.random.choice([-1, 1])
-                print(f'direction {direction} chosen')
-                neighbor_idx = (person_idx + direction) % num_people
-                print(f'people No. {neighbor_idx} chosen as Xj')
-                
-                # 检查意见差异
-                diff = abs(opinions[person_idx] - opinions[neighbor_idx])
-                
-                if diff < threshold:
-                        # 更新意见
-                        print('diff < threshold, updating opinions')
-                        print(f'Xi({each}) = {opinions[person_idx]}, Xj({each}) = {opinions[neighbor_idx]}')
-                        opinions[person_idx] += beta * (opinions[neighbor_idx] - opinions[person_idx])
-                        opinions[neighbor_idx] += beta * (opinions[person_idx] - opinions[neighbor_idx])
-                        print(f'Xi({each+1}) = {opinions[person_idx]}, Xj({each+1}) = {opinions[neighbor_idx]}')
-                else:
-                        print('diff >= threshold, no changes made')
+	# 模拟意见更新
+	for each in range(3):
+		# 随机选择一个人
+		person_idx = np.random.randint(0, num_people)
+		print(f'------iteration {each}------')
+		print(f'people No. {person_idx} chosen as Xi')
+		
+		# 随机选择左或右邻居
+		direction = np.random.choice([-1, 1])
+		print(f'direction {direction} chosen')
+		neighbor_idx = (person_idx + direction) % num_people
+		print(f'people No. {neighbor_idx} chosen as Xj')
+		
+		# 检查意见差异
+		diff = abs(opinions[person_idx] - opinions[neighbor_idx])
+		
+		if diff < threshold:
+			# 更新意见
+			print('diff < threshold, updating opinions')
+			print(f'Xi({each}) = {opinions[person_idx]}, Xj({each}) = {opinions[neighbor_idx]}')
+			opinions[person_idx] += beta * (opinions[neighbor_idx] - opinions[person_idx])
+			opinions[neighbor_idx] += beta * (opinions[person_idx] - opinions[neighbor_idx])
+			print(f'Xi({each+1}) = {opinions[person_idx]}, Xj({each+1}) = {opinions[neighbor_idx]}')
+		else:
+			print('diff >= threshold, no changes made')
 
-        # 可视化更新后的意见
-        plot_hist(opinions,'Final Opinions')
-        plt.show()        
+	# 可视化更新后的意见
+	plot_hist(opinions,'Final Opinions')
+	plt.show()	
 
 
 '''
@@ -334,24 +338,24 @@ This section contains code for the main function- you should write some code for
 
 def main():
 	#You should write some code for handling flags here
-        if '-test_defuant' or '-defuant' in sys.argv:
-                num_people = 50
-                threshold = 0.2
-                beta = 0.2
-                if '-threshold' in sys.argv:
-                        threshold_idx = sys.argv.index('-threshold')
-                        threshold = float(sys.argv[threshold_idx + 1])
-                if '-beta' in sys.argv:
-                        beta_idx = sys.argv.index('-beta')
-                        beta = float(sys.argv[beta_idx + 1])
-                if '-num_people' in sys.argv:
-                        num_people_idx = sys.argv.index('-num_people')
-                        num_people = int(sys.argv[num_people_idx + 1])
-                if '-test_defuant' in sys.argv:
-                        test_func(num_people, threshold, beta)
-                else:
-                        if '-defuant' in sys.argv:
-                                main(num_people, threshold, beta)        
+	if '-test_defuant' or '-defuant' in sys.argv:
+		num_people = 50
+		threshold = 0.2
+		beta = 0.2
+		if '-threshold' in sys.argv:
+			threshold_idx = sys.argv.index('-threshold')
+			threshold = float(sys.argv[threshold_idx + 1])
+		if '-beta' in sys.argv:
+			beta_idx = sys.argv.index('-beta')
+			beta = float(sys.argv[beta_idx + 1])
+		if '-num_people' in sys.argv:
+			num_people_idx = sys.argv.index('-num_people')
+			num_people = int(sys.argv[num_people_idx + 1])
+		if '-test_defuant' in sys.argv:
+			test_defuant(num_people, threshold, beta)
+		else:
+			if '-defuant' in sys.argv:
+				defuant_main(num_people, threshold, beta)
 
 if __name__=="__main__":
 	main()
