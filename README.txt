@@ -10,10 +10,11 @@
 这个项目需要Python 3和以下的库：
 - numpy
 - matplotlib
+- sys
 
 你可以使用pip安装所需的库：
 
-pip install numpy matplotlib
+pip install numpy matplotlib sys
 
 Network模块
 你可以创建不同类型的网络，如随机网络、环形网络和小世界网络。
