@@ -1,7 +1,23 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+import matplotlib.animation as animation
+import argparse
 import sys
+
+class Queue: #for breadth-first-search
+
+	def __init__(self):
+		self.queue = []
+
+	def push(self,item):
+		self.queue.append(item)
+
+	def pop(self):
+		return self.queue.pop(0)
+
+	def is_empty(self):
+		return len(self.queue) == 0
 
 class Node:
 
@@ -11,26 +27,73 @@ class Node:
 		self.connections = connections
 		self.value = value
 
+	def update_value(self, neighbor_value, threshold, beta):
+		if abs(self.value - neighbor_value) <= threshold:
+			self.value += beta * (neighbor_value - self.value)
+
 class Network: 
 
 	def __init__(self, nodes=None):
 
 		if nodes is None:
-		    self.nodes = []
+			self.nodes = []
 		else:
-		    self.nodes = nodes 
+			self.nodes = nodes 
 
 	def get_mean_degree(self):
-		#Your code  for task 3 goes here
-		pass
+		total_degree = 0
 
-	def get_mean_clustering(self):
-		#Your code for task 3 goes here
-		pass
+		for node in self.nodes:
+			for i in node.connections:
+				if i == 1:
+					total_degree += 1
+				else:
+					continue
+		total_nodes = len(self.nodes)
+		mean_degree = total_degree / total_nodes
+
+		return mean_degree
+
+	def get_clustering(self):
+		total_node_clustering = 0
+
+		for node_index in range(len(self.nodes)): #for each node
+
+			node = self.nodes[node_index]
+			actual_connections = 0
+
+			neighbours = [self.nodes[neighbour] for neighbour, connection in enumerate(node.connections) if connection]
+
+			possible_connections = len(neighbours) * (len(neighbours) - 1) / 2
+			#calculate possible connections
+
+			for i, j in enumerate(neighbours): #and check each of its neighbours to see the actual connections
+				for next_to in neighbours[i + 1:]:
+					if j.connections[next_to.index]:
+						actual_connections += 1
+
+			if possible_connections != 0: #calculate clustering for current node and add value to totals
+				node_clustering = actual_connections / possible_connections
+				total_node_clustering += node_clustering
+
+			mean_clustering = total_node_clustering / len(self.nodes)
+
+		return mean_clustering
 	
-	def get_mean_path_length(self):
-		#Your code for task 3 goes here
-		pass
+	def get_path_length(self):
+		total_path_length = 0
+		total_paths = 0
+
+		for node in self.nodes:
+			path = search_paths(self, node) #function defined as this algorithem is used many times for each node
+			for path_length in path.values():
+
+				total_path_length += path_length
+				total_paths += 1 #the problem of counting path to current node itself is solved in search_paths()
+
+		mean_path_length = total_path_length / total_paths
+
+		return round(mean_path_length, 15) #due to test requirements of 15dp
 	
 	def make_random_network(self, N, connection_probability=0.5):
 		'''
@@ -50,6 +113,8 @@ class Network:
 					node.connections[neighbour_index] = 1
 					self.nodes[neighbour_index].connections[index] = 1
 
+	
+
 	def make_ring_network(self, N, neighbour_range=1):
 		#Your code  for task 4 goes here
 		pass
@@ -57,9 +122,9 @@ class Network:
 	def make_small_world_network(self, N, re_wire_prob=0.2):
 		#Your code for task 4 goes here
 		pass
+
 	
 	def plot(self):
-
 		fig = plt.figure()
 		ax = fig.add_subplot(111)
 		ax.set_axis_off()
@@ -84,6 +149,105 @@ class Network:
 					neighbour_y = network_radius * np.sin(neighbour_angle)
 
 					ax.plot((node_x, neighbour_x), (node_y, neighbour_y), color='black')
+
+	def update_nodes(self, nds):
+		if len(self.nodes) == len(nds):
+			self.nodes = nds
+		else:
+			print('Node length not equal')
+
+def search_paths(network, start_node): #apply breadth-first-search
+
+	#to search paths to all other nodes, return the distance to each other nodes
+
+	paths = {}
+	queue = Queue()
+	queue.push((start_node,0))
+	visited = []
+	visited.append(start_node.index) #add the node being check into the visited list so it will not count itself and
+									#the path to itself
+
+	while not queue.is_empty():
+		start_node, distance = queue.pop()
+
+		for neighbour_index, connection in enumerate(start_node.connections):
+			if connection and neighbour_index not in visited:
+				neighbour = network.nodes[neighbour_index]
+				paths[neighbour.index] = distance + 1
+				queue.push((neighbour, distance + 1))
+				visited.append(neighbour_index)
+
+	return paths
+
+def test_networks(): #given code
+
+	#Ring network
+	nodes = []
+	num_nodes = 10
+	for node_number in range(num_nodes):
+		connections = [0 for val in range(num_nodes)]
+		connections[(node_number-1)%num_nodes] = 1
+		connections[(node_number+1)%num_nodes] = 1
+		new_node = Node(0, node_number, connections=connections)
+		nodes.append(new_node)
+	network = Network(nodes)
+
+	print("Testing ring network")
+	assert(network.get_mean_degree()==2), network.get_mean_degree()
+	assert(network.get_mean_clustering()==0), network.get_mean_clustering()
+	assert(network.get_mean_path_length()==2.777777777777778), network.get_mean_path_length()
+
+	nodes = []
+	num_nodes = 10
+	for node_number in range(num_nodes):
+		connections = [0 for val in range(num_nodes)]
+		connections[(node_number+1)%num_nodes] = 1
+		new_node = Node(0, node_number, connections=connections)
+		nodes.append(new_node)
+	network = Network(nodes)
+
+	print("Testing one-sided network")
+	assert(network.get_mean_degree()==1), network.get_mean_degree()
+	assert(network.get_mean_clustering()==0),  network.get_mean_clustering()
+	assert(network.get_mean_path_length()==5), network.get_mean_path_length()
+
+	nodes = []
+	num_nodes = 10
+	for node_number in range(num_nodes):
+		connections = [1 for val in range(num_nodes)]
+		connections[node_number] = 0
+		new_node = Node(0, node_number, connections=connections)
+		nodes.append(new_node)
+	network = Network(nodes)
+
+	print("Testing fully connected network")
+	assert(network.get_mean_degree()==num_nodes-1), network.get_mean_degree()
+	assert(network.get_mean_clustering()==1),  network.get_mean_clustering()
+	assert(network.get_mean_path_length()==1), network.get_mean_path_length()
+
+	print("All tests passed")
+
+def parse(arg):
+
+	######task 3######
+	network = 0
+	test_network = 0
+
+	if '-network' == arg[0]:
+		network = 1
+
+	if '-test_network' == arg[0]:
+		test_network = 1
+
+	return network, test_network
+
+def flags():
+	flag = argparse.ArgumentParser(description="type your flags")
+
+	######task 3######
+	flag.add_argument('-network', action='store_true')
+	flag.add_argument('-test_network', action='store_true')
+
 
 def test_networks():
 
@@ -215,7 +379,7 @@ def test_ising():
 
 
 def ising_main(population, alpha=None, external=0.0):
-    
+	
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
 	ax.set_axis_off()
@@ -238,55 +402,84 @@ This section contains code for the Defuant Model - task 2 in the assignment
 
 def plot_hist(op = [], ttl = None):
 	plt.figure(figsize=(8, 4))
-	plt.hist(op, edgecolor='black')
+	plt.hist(np.transpose(op), edgecolor='black')
 	plt.title(ttl)
 	plt.xlabel('Opinion')
 
-def defuant_main(num_people = 50, threshold = 0.2, beta = 0.2):
+def get_opinions(nw):
+	opinions = [0]*len(nw.nodes)
+	for node in nw.nodes:
+		opinions[node.index] = node.value
+	return opinions
+
+def get_mean(opinions_history):
+	mean_op = [0]*len(opinions_history[0])
+	for opinions in opinions_history:
+		for i in range(len(opinions)):
+			mean_op[i] += opinions[i]
+	for j in range(len(mean_op)):
+		mean_op[j] /= len(opinions_history)
+	return mean_op
+
+def defuant_main(num_people = 50, threshold = 0.2, beta = 0.2, nw = None):
 	#Your code for task 2 goes here
-    
-	# 初始化意见
-	opinions = np.random.rand(num_people)
+	if nw is None:	
+		# 初始化意见
+		opinions = np.random.rand(num_people)
 
-	plot_hist(opinions,'Initial Opinions')
-	plt.show()
+		plot_hist(opinions,'Initial Opinions')
+		plt.show()
 
-	# 存储每次迭代后的意见数据
-	opinions_history = [opinions.copy()]
+		# 存储每次迭代后的意见数据
+		opinions_history = [opinions.copy()]
 
-	# 模拟意见更新
-	for each in range(num_people*100):
-		# 随机选择一个人
-		person_idx = np.random.randint(0, num_people)
-	
-		# 随机选择左或右邻居
-		direction = np.random.choice([-1, 1])
-		neighbor_idx = (person_idx + direction) % num_people
-	
-		# 检查意见差异
-		diff = abs(opinions[person_idx] - opinions[neighbor_idx])
+		# 模拟意见更新
+		for each in range(num_people*100):
+			# 随机选择一个人
+			person_idx = np.random.randint(0, num_people)
 		
-		if diff < threshold:
-			# 更新意见
-			opinions[person_idx] += beta * (opinions[neighbor_idx] - opinions[person_idx])
-			opinions[neighbor_idx] += beta * (opinions[person_idx] - opinions[neighbor_idx])
-		# 存储当前意见数据
-		opinions_history.append(opinions.copy())
+			# 随机选择左或右邻居
+			direction = np.random.choice([-1, 1])
+			neighbor_idx = (person_idx + direction) % num_people
+		
+			# 检查意见差异
+			diff = abs(opinions[person_idx] - opinions[neighbor_idx])
+			
+			if diff < threshold:
+				# 更新意见
+				opinions[person_idx] += beta * (opinions[neighbor_idx] - opinions[person_idx])
+				opinions[neighbor_idx] += beta * (opinions[person_idx] - opinions[neighbor_idx])
+			# 存储当前意见数据
+			opinions_history.append(opinions.copy())
 
-		# 可视化迭代过程中的意见变化
-	plt.figure(figsize=(10, 6))
-	for i, opinion in enumerate(opinions_history):
-		plt.plot([i]*num_people, opinion, 'o', markersize=2, color='blue', alpha=0.5)
+			# 可视化迭代过程中的意见变化
+		plt.figure(figsize=(10, 6))
+		for i, opinion in enumerate(opinions_history):
+			plt.plot([i]*num_people, opinion, 'o', markersize=2, color='blue', alpha=0.5)
 
-	plt.title('Opinions Evolution During Iterations')
-	plt.xlabel('Iteration')
-	plt.ylabel('Opinion')
-	plt.show()
+		plt.title('Opinions Evolution During Iterations')
+		plt.xlabel('Iteration')
+		plt.ylabel('Opinion')
+		plt.show()
 
-	# 可视化更新后的意见
-	plot_hist(opinions,'Final Opinions')
-	plt.show()
-    
+		# 可视化更新后的意见
+		plot_hist(opinions,'Final Opinions')
+		plt.show()
+	else:
+		#使用Network实现的Defuant model
+
+		node_history = []
+		for node in nw.nodes:
+			node_history.append(node)
+			neighbours = [nw.nodes[neighbour] for neighbour, connection in enumerate(node.connections) if connection]
+			for neighbour in neighbours:
+				node.update_value(neighbour.value, threshold, beta)
+				neighbour.update_value(node.value, threshold, beta)
+				#print('updating values')
+
+		nw.update_nodes(node_history)
+		return nw
+	
 def test_defuant(num_people = 50, threshold = 0.2, beta = 0.2):
 	#Your code for task 2 goes here
 	print(f'total number of people in this test function is {num_people}')
@@ -355,7 +548,47 @@ def main():
 			test_defuant(num_people, threshold, beta)
 		else:
 			if '-defuant' in sys.argv:
-				defuant_main(num_people, threshold, beta)
+				if '-use_network' in sys.argv:
+					network_size_idx = sys.argv.index('-use_network')
+					network_size = int(sys.argv[network_size_idx+1])
+					connectivity_p = 0.5
+					nw = Network()
+					Network.make_random_network(nw, network_size, connectivity_p)
+					
+					print("Initial Network:")
+					nw.plot()
+					opinions = get_opinions(nw)
+					opinions_history = [opinions.copy()]
+					plot_hist(opinions, 'Initial Opinions:')
+					plt.show()
+
+					for i in range(5):
+						print(f"Iteration {i+1}:")
+						nw = defuant_main(network_size, threshold, beta, nw)
+						opinions = get_opinions(nw)
+						opinions_history.append(opinions)
+
+					def update(frame):
+						opinions = opinions_history[frame]
+						plt.hist(np.transpose(opinions), edgecolor='black')
+						return opinions
+
+					fig, ax = plt.subplots()
+					# 创建动画，帧数为10，每帧间隔1000毫秒
+					ani = animation.FuncAnimation(fig, update, frames=range(len(opinions_history)), interval=1000, repeat=False)
+					plt.show()
+					
+					plot_hist(get_mean(opinions_history), 'Mean Opinions:')
+					plt.show()
+					
+				else:
+					defuant_main(num_people, threshold, beta)
+			elif '-test_networks' in sys.argv:
+				test_networks()
+			else:
+				print('No model specified')
+		
+	
 
 if __name__=="__main__":
 	main()
