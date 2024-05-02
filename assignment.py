@@ -28,6 +28,7 @@ class Node:
 		self.value = value
 
 	def update_value(self, neighbor_value, threshold, beta):
+		#####task 2#####
 		if abs(self.value - neighbor_value) <= threshold:
 			self.value += beta * (neighbor_value - self.value)
 
@@ -151,6 +152,7 @@ class Network:
 					ax.plot((node_x, neighbour_x), (node_y, neighbour_y), color='black')
 
 	def update_nodes(self, nds):
+		#####task 2#####
 		if len(self.nodes) == len(nds):
 			self.nodes = nds
 		else:
@@ -407,13 +409,13 @@ def plot_hist(op = [], ttl = None):
 	plt.xlabel('Opinion')
 
 def get_opinions(nw):
-	opinions = [0]*len(nw.nodes)
+	opinions = [0 for _ in range(len(nw.nodes))]
 	for node in nw.nodes:
 		opinions[node.index] = node.value
 	return opinions
 
 def get_mean(opinions_history):
-	mean_op = [0]*len(opinions_history[0])
+	mean_op = [0 for _ in range(len(opinions_history[0]))]
 	for opinions in opinions_history:
 		for i in range(len(opinions)):
 			mean_op[i] += opinions[i]
@@ -467,7 +469,6 @@ def defuant_main(num_people = 50, threshold = 0.2, beta = 0.2, nw = None):
 		plt.show()
 	else:
 		#使用Network实现的Defuant model
-
 		node_history = []
 		for node in nw.nodes:
 			node_history.append(node)
@@ -574,8 +575,8 @@ def main():
 						return opinions
 
 					fig, ax = plt.subplots()
-					# 创建动画，帧数为10，每帧间隔1000毫秒
-					ani = animation.FuncAnimation(fig, update, frames=range(len(opinions_history)), interval=1000, repeat=False)
+					# 创建动画，帧数为迭代次数，每帧间隔100毫秒
+					ani = animation.FuncAnimation(fig, update, frames=range(len(opinions_history)), interval=100, repeat=False)
 					plt.show()
 					
 					plot_hist(get_mean(opinions_history), 'Mean Opinions:')

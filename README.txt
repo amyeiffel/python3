@@ -23,11 +23,6 @@ network = Network()
 network.make_random_network(10)
 network.plot()
 
-Ising Model模块
-你可以模拟Ising模型的演变。
-population = np.random.choice([-1, 1], size=(10, 10))
-ising_main(population)
-
 Defuant Model模块
 你可以模拟Defuant模型的演变。
 defuant_main()
@@ -38,3 +33,4 @@ python assignment.py -test_defuant -threshold 0.2 -beta 0.2 -num_people 50
 
 运行defuant模型
 python assignment.py -defuant -threshold 0.2 -beta 0.2 -num_people 50 #将生成一个1D grid上的defuant模型，使用你给定的相关参数。
+python assignment.py -defuant -use_network 10 #将生成一个随机网络上的defuant模型，size是10
